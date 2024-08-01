@@ -74,6 +74,7 @@ def xlnx_generate_petalinux_config(tgt_node, sdt, options):
     """
     tmp_dict = {}
     proc_name = ""
+    mem_type = ""
     device_type_dict = {}
     with open(yaml_file, 'r') as stream:
         schema = yaml.safe_load(stream)
