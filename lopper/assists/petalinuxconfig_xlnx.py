@@ -84,6 +84,7 @@ def xlnx_generate_petalinux_config(tgt_node, sdt, options):
             device_type_dict['device_id'] = device[0]
         for res in res_list:
             dev_type = schema[res]['device_type']
+            mem_type = schema[res]['memory_type']
             if re.search("processor", dev_type):
                 ### Processor Handling
                 match_cpunode = get_cpu_node(sdt, options)
@@ -94,7 +95,7 @@ def xlnx_generate_petalinux_config(tgt_node, sdt, options):
                     ipname = {"arch": "aarch64", "ip_name":ip_name[0]}
                     device_type_dict['processor'] = {label_name:ipname}
                     device_type_dict['processor'][label_name].update({"slaves_strings": " ".join(nodename_list)})
-            elif re.search("memory", dev_type):
+            elif re.search("memory", mem_type):
                 ### Memory Handling
                 mem_ranges = get_memranges(tgt_node, sdt, options)
                 index = 0
