@@ -74,7 +74,6 @@ def xlnx_generate_petalinux_config(tgt_node, sdt, options):
     """
     tmp_dict = {}
     proc_name = ""
-    mem_type = ""
     device_type_dict = {}
     with open(yaml_file, 'r') as stream:
         schema = yaml.safe_load(stream)
@@ -86,17 +85,8 @@ def xlnx_generate_petalinux_config(tgt_node, sdt, options):
         for res in res_list:
             dev_type = schema[res]['device_type']
             mem_type = schema[res]['memory_type']
-            if re.search("processor", dev_type):
-                ### Processor Handling
-                match_cpunode = get_cpu_node(sdt, options)
-                if match_cpunode:
-                    label_name = get_label(sdt, symbol_node, match_cpunode)
-                    ip_name = match_cpunode.propval('xlnx,ip-name')
-                    proc_name = label_name
-                    ipname = {"arch": "aarch64", "ip_name":ip_name[0]}
-                    device_type_dict['processor'] = {label_name:ipname}
-                    device_type_dict['processor'][label_name].update({"slaves_strings": " ".join(nodename_list)})
-            elif re.search("memory", mem_type):
+            try:
+                if re.search("memory", mem_type):
                 ### Memory Handling
                 mem_ranges = get_memranges(tgt_node, sdt, options)
                 index = 0
@@ -109,7 +99,19 @@ def xlnx_generate_petalinux_config(tgt_node, sdt, options):
                     tmp_dict['slaves'][mem_name].update({"ip_name":mem_name[:-2]})
                     tmp_dict['slaves'][mem_name].update({"baseaddr":hex(mem[0])})
                     tmp_dict['slaves'][mem_name].update({"highaddr":hex(mem[0] + mem[1])})
-                    index += 1
+                    index += 
+            except:
+                pass
+            if re.search("processor", dev_type):
+                ### Processor Handling
+                match_cpunode = get_cpu_node(sdt, options)
+                if match_cpunode:
+                    label_name = get_label(sdt, symbol_node, match_cpunode)
+                    ip_name = match_cpunode.propval('xlnx,ip-name')
+                    proc_name = label_name
+                    ipname = {"arch": "aarch64", "ip_name":ip_name[0]}
+                    device_type_dict['processor'] = {label_name:ipname}
+                    device_type_dict['processor'][label_name].update({"slaves_strings": " ".join(nodename_list)})
             else:
                 for node in mapped_nodelist:
                     compatible_list = node["compatible"].value
